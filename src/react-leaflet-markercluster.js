@@ -3,6 +3,26 @@ import L from 'leaflet';
 
 require('leaflet.markercluster');
 
+// thanks to https://github.com/olabalboa for the original code:
+// https://github.com/YUzhva/react-leaflet-markercluster/pull/86
+L.MarkerClusterGroup.include({
+  _flushLayerBuffer() {
+    this.addLayers(this._layerBuffer);
+    this._layerBuffer = [];
+  },
+
+  addLayer(layer) {
+    if (this._layerBuffer.length === 0) {
+      setTimeout(this._flushLayerBuffer.bind(this), this.options.chunkDelay);
+    }
+    this._layerBuffer.push(layer);
+  },
+});
+
+L.MarkerClusterGroup.addInitHook(function() {
+  this._layerBuffer = [];
+});
+
 class MarkerClusterGroup extends MapLayer {
   createLeafletElement({ children, leaflet: { map }, ...props }) {
     const clusterProps = {};
