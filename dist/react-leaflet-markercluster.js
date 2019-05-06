@@ -26,6 +26,25 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 require('leaflet.markercluster');
 
+// thanks to https://github.com/olabalboa for the original code:
+// https://github.com/YUzhva/react-leaflet-markercluster/pull/86
+_leaflet2.default.MarkerClusterGroup.include({
+  _flushLayerBuffer: function _flushLayerBuffer() {
+    this.addLayers(this._layerBuffer);
+    this._layerBuffer = [];
+  },
+  addLayer: function addLayer(layer) {
+    if (this._layerBuffer.length === 0) {
+      setTimeout(this._flushLayerBuffer.bind(this), this.options.chunkDelay);
+    }
+    this._layerBuffer.push(layer);
+  }
+});
+
+_leaflet2.default.MarkerClusterGroup.addInitHook(function () {
+  this._layerBuffer = [];
+});
+
 var MarkerClusterGroup = function (_MapLayer) {
   _inherits(MarkerClusterGroup, _MapLayer);
 
